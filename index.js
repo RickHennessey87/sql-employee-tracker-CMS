@@ -21,7 +21,7 @@ const employeeTrackerMenu = () => {
                 choices: [
                     'View All Departments',
                     'View All Roles',
-                    'View All Emploees',
+                    'View All Employees',
                     'Add a Department',
                     'Add a Role',
                     'Add an Employee',
@@ -37,6 +37,10 @@ const employeeTrackerMenu = () => {
 
             case 'View All Roles':
                 viewAllRoles();
+                break;
+
+            case 'View All Employees':
+                viewAllEmployees();
                 break;
 
             default:
@@ -77,4 +81,32 @@ const viewAllRoles = async () => {
     }
 };
 
+const viewAllEmployees = async () => {
+    try {
+        const result = await pool.query(`
+            SELECT 
+                e.id AS employee_id, 
+                e.first_name, 
+                e.last_name, 
+                r.title AS jobe_title, 
+                d.name AS department, 
+                r.salary, 
+                COALESCE(CONCAT(m.first_name, ' ', m.last_name), 'None') AS manager
+            FROM 
+                employee AS e
+            JOIN 
+                role AS r ON e.role_id = r.id
+            JOIN
+                department AS d ON r.department_id = d.id
+            LEFT JOIN
+                employee AS m ON e.manager_id = m.id;
+        `);
+
+        console.table(result.rows);
+        employeeTrackerMenu();
+
+    } catch (error) {
+        console.log(error);
+    }
+};
 employeeTrackerMenu();
