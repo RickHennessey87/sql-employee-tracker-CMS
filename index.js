@@ -46,6 +46,10 @@ const employeeTrackerMenu = () => {
             case 'Add a Department':
                 addDepartment();
                 break;
+            
+            case 'Add a Role':
+                addRole();
+                break;
 
             default:
                 console.log('Invalid selection. Please try again.');
@@ -133,6 +137,55 @@ const addDepartment = async () => {
             `);
 
         console.log('New Department added.');
+        employeeTrackerMenu();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const addRole = async () => {
+    try {
+        const departmentsQuery = await pool.query(`
+            SELECT id, name
+            FROM department
+            `);
+        const departments = departmentsQuery.rows;
+        const departmentSelection = departments.map(department => ({
+            name: department.name,
+            value: department.id
+        }));
+
+        const answer = await inquirer.prompt(
+            [
+                {
+                    type: 'input',
+                    name: 'roleTitle',
+                    message: 'What is the name of the role you wish to add?',
+                    validate: input => input ? true : "Invalid input. Please try again."
+                },
+                {
+                    type: 'input',
+                    name: 'roleSalary',
+                    message: "What is the role's salary",
+                    validate: input => !isNaN(input) ? true : 'Invalid input. Please enter an integer.'
+                },
+                {
+                    type: 'list',
+                    name: 'departmentId',
+                    message: 'Select the department this role belongs to?',
+                    choices: departmentSelection
+                }
+            ]
+        );
+
+        const result = await pool.query(`
+            INSERT INTO role (title, salary, department_id)
+            VALUES 
+                ($1, $2, $3)
+            RETURNING id, title, salary, department_id
+            `, [answer.roleTitle, answer.roleSalary, answer.departmentId]);
+
+        console.log('New Role added.');
         employeeTrackerMenu();
     } catch (error) {
         console.log(error);
