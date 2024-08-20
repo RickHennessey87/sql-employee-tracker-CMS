@@ -34,6 +34,11 @@ const employeeTrackerMenu = () => {
             case 'View All Departments':
                 viewAllDepartments();
                 break;
+
+            case 'View All Roles':
+                viewAllRoles();
+                break;
+
             default:
                 console.log('Invalid selection. Please try again.');
                 employeeTrackerMenu();
@@ -44,14 +49,32 @@ const employeeTrackerMenu = () => {
 
 const viewAllDepartments = async () => {
     try {
-        const result = await pool.query('SELECT id, name FROM department');
+        const result = await pool.query(`
+            SELECT id, name 
+            FROM department
+        `);
 
         console.table(result.rows);
-
         employeeTrackerMenu();
+
     } catch (error) {
         console.log(error)
     }
 }
+
+const viewAllRoles = async () => {
+    try {
+        const result = await pool.query(`
+            SELECT title, id, department_id, salary
+            FROM role
+        `);
+
+        console.table(result.rows);
+        employeeTrackerMenu();
+
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 employeeTrackerMenu();
