@@ -1,4 +1,5 @@
 const inquirer = require('inquirer');
+const consoleTable = require('console.table');
 const { Pool } = require('pg');
 const pool = new Pool({
     user: 'postgres',
@@ -29,8 +30,28 @@ const employeeTrackerMenu = () => {
             }
         ]
     ).then((answer) => {
-        console.log("option selected:", answer.option)
+        switch (answer.option) {
+            case 'View All Departments':
+                viewAllDepartments();
+                break;
+            default:
+                console.log('Invalid selection. Please try again.');
+                employeeTrackerMenu();
+                break;
+        }
     });
+}
+
+const viewAllDepartments = async () => {
+    try {
+        const result = await pool.query('SELECT id, name FROM department');
+
+        console.table(result.rows);
+
+        employeeTrackerMenu();
+    } catch (error) {
+        console.log(error)
+    }
 }
 
 employeeTrackerMenu();
