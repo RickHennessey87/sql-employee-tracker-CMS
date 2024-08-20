@@ -43,6 +43,10 @@ const employeeTrackerMenu = () => {
                 viewAllEmployees();
                 break;
 
+            case 'Add a Department':
+                addDepartment();
+                break;
+
             default:
                 console.log('Invalid selection. Please try again.');
                 employeeTrackerMenu();
@@ -109,4 +113,30 @@ const viewAllEmployees = async () => {
         console.log(error);
     }
 };
+
+const addDepartment = async () => {
+    try {
+        const answer = await inquirer.prompt(
+            [
+                {
+                    type: 'input',
+                    name: 'departmentName',
+                    message: 'What is the name of the department you wish to add?',
+                    validate: input => input ? true : "Invalid input. Please try again."
+                }
+            ]
+        );
+        const result = await pool.query(`
+            INSERT INTO department (name)
+            VALUES ('${answer.departmentName}')
+            RETURNING id, name
+            `);
+
+        console.log('New Department added.');
+        employeeTrackerMenu();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 employeeTrackerMenu();
