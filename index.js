@@ -55,6 +55,10 @@ const employeeTrackerMenu = () => {
                 addEmployee();
                 break;
 
+            case 'Update an Employee Role':
+                updateEmployeeRole();
+                break;
+
             default:
                 console.log('Invalid selection. Please try again.');
                 employeeTrackerMenu();
@@ -265,6 +269,63 @@ const addEmployee = async () => {
             VALUES ($1, $2, $3, $4)
             RETURNING id, first_name, last_name, role_id, manager_id
             `, [answer.firstName, answer.lastName, answer.roleId, answer.managerId]);
+
+        console.log('New Employee added.');
+        employeeTrackerMenu();
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+const updateEmployeeRole = async () => {
+    try {
+        const rolesQuery = await pool.query(`
+            SELECT id, title
+            FROM role
+            `);
+
+        const employeesQuery = await pool.query(`
+            SELECT id,
+                CONCAT(first_name, ' ', last_name)
+                    AS name
+            FROM employee`)
+
+        const roles = rolesQuery.rows;
+        const employees = employeesQuery.rows
+
+        const roleOptions = roles.map(role => ({
+            name: role.title,
+            value: role.id
+        }))
+
+        const employeeOptions = employees.map(employee => ({
+            name: employee.name,
+            value: employee.id
+        }))
+
+        const answer = await inquirer.prompt(
+            [
+                {
+                    type: 'list',
+                    name: 'employeeId',
+                    message: "What employee would you like to update?",
+                    choices: employeeOptions
+                },
+                {
+                    type: 'list',
+                    name: 'roleId',
+                    message: 'What is the new role for the employee?',
+                    choices: roleOptions
+                }
+            ]
+        );
+
+        const result = await pool.query(`
+            UPDATE employee
+            SET role_id = $1
+            WHERE id = $2
+            RETURNING id, first_name, last_name, role_id
+            `, [answer.roleId, answer.employeeId]);
 
         console.log('New Employee added.');
         employeeTrackerMenu();
