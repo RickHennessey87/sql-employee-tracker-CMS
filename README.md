@@ -23,7 +23,7 @@ To run the applicaton simply run `Node Index.js` into the terminal:
 
 ![screenshot](./images/employee_tracker_screenshot.jpg)
 
-https://app.screencastify.com/v2/manage/videos/Kg3C9gHHfqrjcqsMJmwd
+https://www.youtube.com/watch?v=q-OvNFIVBT4&ab_channel=PatrickHennessey
 
 ## Credits
         
